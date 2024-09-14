@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  wordcut-api:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: wordcut-api
+    ports:
+      - "3000:3000"
