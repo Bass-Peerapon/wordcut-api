@@ -3,27 +3,44 @@ use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
 use wordcut_engine::{load_dict, Wordcut};
 
-pub struct WordcutEngine {
+pub struct WordcutEngineSdk {
     wordcut: Wordcut,
 }
 
-impl WordcutEngine {
-    pub fn new() -> Self {
-        let dict_path = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/dict.txt"));
-        let dict = load_dict(dict_path).unwrap();
-        let wordcut = Wordcut::new(dict);
-        WordcutEngine { wordcut }
-    }
+pub trait WordcutEngine {
+    fn cut_with_delimiters(&self, text: &str, delimiter: &str) -> String;
 
-    pub fn cut_with_delimiters(&self, text: &str, delimiter: &str) -> String {
+    fn cut(&self, text: &str) -> Vec<String>;
+
+    // เพิ่มคำใหม่ลงใน dict.txt และโหลด dict ใหม่
+    fn add_word(&mut self, word: &str);
+
+    // ลบคำใน dict.txt
+    fn remove_word(&mut self, word: &str);
+
+    // ตรวจสอบว่าคำมีใน dict.txt แล้วหรือยัง
+    fn word_exists_in_dict(&self, word: &str, dict_path: &Path) -> bool;
+
+    // เพิ่มคำใหม่ลงใน dict.txt
+    fn append_word_to_dict(&self, word: &str, dict_path: &Path);
+
+    // ลบคำใน dict.txt
+    fn remove_word_from_dict(&self, word: &str, dict_path: &Path);
+
+    // โหลด dict ใหม่และอัปเดต wordcut
+    fn reload_dict(&mut self, dict_path: &Path);
+}
+
+impl WordcutEngine for WordcutEngineSdk {
+    fn cut_with_delimiters(&self, text: &str, delimiter: &str) -> String {
         self.wordcut.put_delimiters(text, delimiter)
     }
-    pub fn cut(&self, text: &str) -> Vec<String> {
+    fn cut(&self, text: &str) -> Vec<String> {
         self.wordcut.segment_into_strings(text)
     }
 
     // เพิ่มคำใหม่ลงใน dict.txt และโหลด dict ใหม่
-    pub fn add_word(&mut self, word: &str) {
+    fn add_word(&mut self, word: &str) {
         let dict_path = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/dict.txt"));
 
         // ตรวจสอบว่าคำนี้มีใน dict.txt แล้วหรือยัง
@@ -36,7 +53,7 @@ impl WordcutEngine {
     }
 
     // ลบคำใน dict.txt
-    pub fn remove_word(&mut self, word: &str) {
+    fn remove_word(&mut self, word: &str) {
         let dict_path = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/dict.txt"));
         self.remove_word_from_dict(word, dict_path);
         self.reload_dict(dict_path);
@@ -88,8 +105,10 @@ impl WordcutEngine {
         self.wordcut = Wordcut::new(dict); // อัปเดต wordcut ด้วย dict ใหม่
     }
 }
-impl Default for WordcutEngine {
-    fn default() -> Self {
-        Self::new()
-    }
+
+pub fn new() -> WordcutEngineSdk {
+    let dict_path = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/dict.txt"));
+    let dict = load_dict(dict_path).unwrap();
+    let wordcut = Wordcut::new(dict);
+    WordcutEngineSdk { wordcut }
 }

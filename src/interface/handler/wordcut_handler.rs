@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::application::usecase::WordcutUsecase;
-use axum::{extract::Query, response::IntoResponse, Json};
+use axum::{extract::Query, http::StatusCode, response::IntoResponse, Extension, Json};
 use serde::Deserialize;
 use serde_json::json;
 #[derive(Deserialize)]
@@ -9,29 +9,28 @@ pub struct WordcutRequest {
     text: String,
 }
 
-pub async fn get_wordcut_handler(
+pub async fn get_wordcut_handler<T: WordcutUsecase>(
+    Extension(wordcut_usecase): Extension<Arc<Mutex<T>>>,
     Query(params): Query<WordcutRequest>,
-    wordcut_usecase: Arc<Mutex<WordcutUsecase>>,
 ) -> impl IntoResponse {
     let wordcut_usecase = wordcut_usecase.lock().unwrap();
     let result = wordcut_usecase.cut(&params.text);
-    Json(json!({ "wordcut": result }))
+    (StatusCode::OK, Json(json!({ "wordcut": result })))
 }
-
-pub async fn add_word_handler(
+pub async fn add_word_handler<T: WordcutUsecase>(
+    Extension(wordcut_usecase): Extension<Arc<Mutex<T>>>,
     Json(params): Json<WordcutRequest>,
-    wordcut_usecase: Arc<Mutex<WordcutUsecase>>,
 ) -> impl IntoResponse {
     let mut wordcut_usecase = wordcut_usecase.lock().unwrap();
     wordcut_usecase.add_word(&params.text);
-    Json(json!({ "result": "ok" }))
+    (StatusCode::OK, Json(json!({ "result": "ok" })))
 }
 
-pub async fn remove_word_handler(
+pub async fn remove_word_handler<T: WordcutUsecase>(
+    Extension(wordcut_usecase): Extension<Arc<Mutex<T>>>,
     Json(params): Json<WordcutRequest>,
-    wordcut_usecase: Arc<Mutex<WordcutUsecase>>,
 ) -> impl IntoResponse {
     let mut wordcut_usecase = wordcut_usecase.lock().unwrap();
     wordcut_usecase.remove_word(&params.text);
-    Json(json!({ "result": "ok" }))
+    (StatusCode::OK, Json(json!({ "result": "ok" })))
 }
