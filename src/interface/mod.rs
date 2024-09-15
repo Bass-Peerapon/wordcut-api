@@ -1,1 +1,1 @@
-pub mod handler;
+pub mod wordcut_handler;

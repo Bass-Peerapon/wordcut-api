@@ -1,2 +1,1 @@
-pub mod usecase;
-pub mod wordcut;
+pub mod wordcut_usecase;
