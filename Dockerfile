@@ -14,10 +14,12 @@ RUN cargo build --release
 RUN mv ./target/release/wordcut-api ./app
 
 COPY ./dict.txt /app/dict.txt
+COPY ./thai_cluster_rules.txt /app/thai_cluster_rules.txt
 
 FROM debian:stable-slim AS runtime
 WORKDIR /app
 COPY --from=builder /app/app /usr/local/bin/
 COPY --from=builder /app/dict.txt /app/dict.txt
+COPY --from=builder /app/thai_cluster_rules.txt /app/thai_cluster_rules.txt
 
 ENTRYPOINT ["/usr/local/bin/app"]

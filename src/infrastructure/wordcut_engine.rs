@@ -1,16 +1,21 @@
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
-use wordcut_engine::{load_dict, Wordcut};
+use wordcut_engine::{load_cluster_rules, load_dict, Wordcut};
 
 pub struct WordcutEngine {
     wordcut: Wordcut,
 }
 impl WordcutEngine {
     pub fn new() -> Self {
+        let cluster_path = Path::new(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/thai_cluster_rules.txt"
+        ));
+        let cluster_re = load_cluster_rules(cluster_path).unwrap();
         let dict_path = Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/dict.txt"));
         let dict = load_dict(dict_path).unwrap();
-        let wordcut = Wordcut::new(dict);
+        let wordcut = Wordcut::new_with_cluster_re(dict, cluster_re);
 
         Self { wordcut }
     }
