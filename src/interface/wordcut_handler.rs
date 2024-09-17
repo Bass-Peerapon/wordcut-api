@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::application::wordcut_usecase::WordcutUsecase;
-use axum::{extract::Query, http::StatusCode, response::IntoResponse, Extension, Json};
+use axum::{http::StatusCode, response::IntoResponse, Extension, Json};
 use serde::Deserialize;
 use serde_json::json;
 
@@ -12,7 +12,7 @@ pub struct WordcutRequest {
 
 pub async fn get_wordcut_handler(
     Extension(wordcut_usecase): Extension<Arc<Mutex<WordcutUsecase>>>,
-    Query(params): Query<WordcutRequest>,
+    Json(params): Json<WordcutRequest>,
 ) -> impl IntoResponse {
     let wordcut_usecase = wordcut_usecase.lock().unwrap();
     let result = wordcut_usecase.cut(&params.text);
