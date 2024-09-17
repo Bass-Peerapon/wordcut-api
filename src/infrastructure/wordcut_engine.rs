@@ -66,7 +66,7 @@ fn word_exists_in_dict(word: &str, dict_path: &Path) -> bool {
     let reader = BufReader::new(file);
 
     for line in reader.lines().map_while(Result::ok) {
-        if line == word {
+        if line.eq(word) {
             return true;
         }
     }
