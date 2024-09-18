@@ -12,7 +12,7 @@ use wordcut_api::{
 
 #[tokio::main]
 async fn main() {
-    let wordcut_engine = WordcutEngine::new();
+    let wordcut_engine = WordcutEngine::new().unwrap();
     let wordcut_usecase = Arc::new(Mutex::new(WordcutUsecase::new(wordcut_engine)));
 
     let app = Router::new()
