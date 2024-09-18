@@ -14,7 +14,15 @@ pub async fn get_wordcut_handler(
     Extension(wordcut_usecase): Extension<Arc<Mutex<WordcutUsecase>>>,
     Json(params): Json<WordcutRequest>,
 ) -> impl IntoResponse {
-    let wordcut_usecase = wordcut_usecase.lock().unwrap();
+    let wordcut_usecase = match wordcut_usecase.lock() {
+        Ok(wordcut_usecase) => wordcut_usecase,
+        Err(_) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({ "error": "Failed to lock wordcut_usecase" })),
+            )
+        }
+    };
     let result = wordcut_usecase.cut(&params.text);
     (StatusCode::OK, Json(json!({ "wordcut": result })))
 }
