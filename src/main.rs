@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 
 use axum::{
     routing::{delete, post},
@@ -13,7 +13,7 @@ use wordcut_api::{
 #[tokio::main]
 async fn main() {
     let wordcut_engine = WordcutEngine::new().unwrap();
-    let wordcut_usecase = Arc::new(Mutex::new(WordcutUsecase::new(wordcut_engine)));
+    let wordcut_usecase = Arc::new(RwLock::new(WordcutUsecase::new(wordcut_engine)));
 
     let app = Router::new()
         .route("/wordcut", post(get_wordcut_handler))

@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 
 use crate::application::wordcut_usecase::WordcutUsecase;
 use axum::{Extension, Json};
@@ -6,22 +6,22 @@ use axum::{Extension, Json};
 use super::{error::Error, request::WordcutRequest, response::Response};
 
 pub async fn get_wordcut_handler(
-    Extension(wordcut_usecase): Extension<Arc<Mutex<WordcutUsecase>>>,
+    Extension(wordcut_usecase): Extension<Arc<RwLock<WordcutUsecase>>>,
     Json(params): Json<WordcutRequest>,
 ) -> Result<Response, Error> {
     let wordcut_usecase = wordcut_usecase
-        .lock()
+        .read()
         .map_err(|e| Error::InternalError(e.to_string()))?;
 
     let result = wordcut_usecase.cut(&params.text);
     Ok(Response::Wordcut(result))
 }
 pub async fn add_word_handler(
-    Extension(wordcut_usecase): Extension<Arc<Mutex<WordcutUsecase>>>,
+    Extension(wordcut_usecase): Extension<Arc<RwLock<WordcutUsecase>>>,
     Json(params): Json<WordcutRequest>,
 ) -> Result<Response, Error> {
     let mut wordcut_usecase = wordcut_usecase
-        .lock()
+        .write()
         .map_err(|e| Error::InternalError(e.to_string()))?;
 
     wordcut_usecase
@@ -31,11 +31,11 @@ pub async fn add_word_handler(
 }
 
 pub async fn remove_word_handler(
-    Extension(wordcut_usecase): Extension<Arc<Mutex<WordcutUsecase>>>,
+    Extension(wordcut_usecase): Extension<Arc<RwLock<WordcutUsecase>>>,
     Json(params): Json<WordcutRequest>,
 ) -> Result<Response, Error> {
     let mut wordcut_usecase = wordcut_usecase
-        .lock()
+        .write()
         .map_err(|e| Error::InternalError(e.to_string()))?;
 
     wordcut_usecase
