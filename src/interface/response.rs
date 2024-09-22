@@ -5,6 +5,7 @@ pub enum Response {
     Wordcut(Vec<String>),
     AddwordSuccess,
     RemovewordSuccess,
+    Spellcheck(Vec<String>),
 }
 
 impl IntoResponse for Response {
@@ -13,6 +14,7 @@ impl IntoResponse for Response {
             Response::AddwordSuccess => (StatusCode::OK, Json(json!({ "message": "success" }))),
             Response::RemovewordSuccess => (StatusCode::OK, Json(json!({ "message": "success" }))),
             Response::Wordcut(words) => (StatusCode::OK, Json(json!({ "wordcut": words }))),
+            Response::Spellcheck(words) => (StatusCode::OK, Json(json!({ "words": words }))),
         }
         .into_response()
     }
