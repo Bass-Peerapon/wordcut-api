@@ -9,7 +9,7 @@ impl SpellCheckerUsecase {
         Self { spell_checker }
     }
 
-    pub fn check(&self, text: &str) -> Vec<String> {
-        self.spell_checker.check(text).unwrap()
+    pub fn spell(&self, text: &str) -> Vec<String> {
+        self.spell_checker.spell(text)
     }
 }

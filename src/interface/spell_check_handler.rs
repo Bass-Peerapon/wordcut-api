@@ -13,6 +13,6 @@ pub async fn spell_check_handler(
         .read()
         .map_err(|e| Error::InternalError(e.to_string()))?;
 
-    let result = spell_checker_usecase.check(&params.text);
+    let result = spell_checker_usecase.spell(&params.text);
     Ok(Response::Spellcheck(result))
 }
