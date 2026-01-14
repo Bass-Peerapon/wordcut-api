@@ -28,7 +28,12 @@ async fn main() {
         .layer(Extension(Arc::clone(&wordcut_usecase)))
         .layer(Extension(Arc::clone(&spell_checker_usecase)));
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let port = std::env::var("APP_PORT")
+        .unwrap_or_else(|_| "3000".to_string())
+        .parse::<u16>()
+        .unwrap_or(3000);
+    
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();
     println!("listening on {}", listener.local_addr().unwrap());
 
     axum::serve(listener, app).await.unwrap();
